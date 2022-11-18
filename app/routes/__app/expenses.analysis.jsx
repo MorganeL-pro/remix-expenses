@@ -1,26 +1,44 @@
 import ExpenseStatistics from "~/components/expenses/ExpenseStatistics";
 import Chart from "~/components/expenses/Chart";
-
-const DUMMY_EXPENSES = [
-	{
-		id: "e1",
-		title: "First Expense",
-		amount: 12.99,
-		date: new Date().toISOString(),
-	},
-	{
-		id: "e1=2",
-		title: "Second Expense",
-		amount: 25.99,
-		date: new Date().toISOString(),
-	},
-];
+import { getExpenses } from "~/data/expenses.server";
+import { json } from "@remix-run/node";
+import { useCatch, useLoaderData } from "@remix-run/react";
+import Error from "~/components/util/Error";
 
 export default function ExpensesAnalysisPage() {
+	const expenses = useLoaderData();
+
 	return (
 		<main>
-			<Chart expenses={DUMMY_EXPENSES} />
-			<ExpenseStatistics expenses={DUMMY_EXPENSES} />
+			<Chart expenses={expenses} />
+			<ExpenseStatistics expenses={expenses} />
+		</main>
+	);
+}
+
+// return array of expenses
+export async function loader({ request }) {
+	const expenses = await getExpenses();
+
+	if (!expenses || expenses.length === 0) {
+		throw json(
+			{ message: "Could not load expenses." },
+			{ status: 404, statusText: "Expenses not found" }
+		);
+	}
+
+	return expenses; // or return json(expenses)
+}
+
+// closest catchboundary - it does not replace all the root page but only Outlet (navigation stays)
+export function CatchBoundary() {
+	const caughtResponse = useCatch();
+
+	return (
+		<main>
+			<Error title={caughtResponse.statusText}>
+				<p>{caughtResponse.data?.message || "Something went wrong"}</p>
+			</Error>
 		</main>
 	);
 }

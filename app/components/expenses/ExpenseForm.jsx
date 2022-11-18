@@ -2,6 +2,8 @@ import {
 	Form,
 	Link,
 	useActionData,
+	useMatches,
+	useParams,
 	useTransition as useNavigation,
 } from "@remix-run/react";
 
@@ -12,11 +14,52 @@ function ExpenseForm() {
 	const navigation = useNavigation();
 	const isSubmitting = navigation.state !== "idle";
 
+	// doesn't work because we commented the loader from $id
+	// const expenseData = useLoaderData();
+
+	const params = useParams();
+
+	const matches = useMatches();
+	// get all the active routes from where we are (almost like get the props from a parent)
+	console.log(matches);
+	const expenses = matches.find(
+		(match) => match.id === "routes/__app/expenses"
+	).data;
+	const expenseData = expenses.find((expense) => expense.id === params.id);
+
+	if (params.id && !expenseData) {
+		// if id is present but we can't find any related expense, it probably means that it's a invalid id
+		return <p>Invalid Expense id</p>;
+	}
+
+	const defaultValues = expenseData
+		? {
+				title: expenseData.title,
+				amount: expenseData.amount,
+				date: expenseData.date,
+		  }
+		: {
+				title: "",
+				amount: "",
+				date: "",
+		  };
+
 	return (
-		<Form method="post" className="form" id="expense-form">
+		<Form
+			method={expenseData ? "patch" : "post"}
+			className="form"
+			id="expense-form"
+		>
 			<p>
 				<label htmlFor="title">Expense Title</label>
-				<input type="text" id="title" name="title" required maxLength={30} />
+				<input
+					type="text"
+					id="title"
+					name="title"
+					required
+					maxLength={30}
+					defaultValue={defaultValues.title}
+				/>
 			</p>
 
 			<div className="form-row">
@@ -29,11 +72,21 @@ function ExpenseForm() {
 						min="0"
 						step="0.01"
 						required
+						defaultValue={defaultValues.amount}
 					/>
 				</p>
 				<p>
 					<label htmlFor="date">Date</label>
-					<input type="date" id="date" name="date" max={today} required />
+					<input
+						type="date"
+						id="date"
+						name="date"
+						max={today}
+						required
+						defaultValue={
+							defaultValues.date ? defaultValues.date.slice(0, 10) : ""
+						}
+					/>
 				</p>
 			</div>
 			{validationErrors && (
