@@ -1,10 +1,16 @@
 //pathless component to wrap all the files in __app folder with the same style without adding /app/expenses in the url
 
 import { Outlet } from "@remix-run/react";
+import ExpensesHeader from "~/components/navigation/ExpensesHeader";
 import expensesStyles from "~/styles/expenses.css";
 
 export default function ExpensesLayout() {
-	return <Outlet />;
+	return (
+		<>
+			<ExpensesHeader />
+			<Outlet />
+		</>
+	);
 }
 
 export function links() {
