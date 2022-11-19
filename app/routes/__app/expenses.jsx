@@ -4,6 +4,7 @@ import { Link, Outlet, useLoaderData } from "@remix-run/react";
 import ExpensesList from "~/components/expenses/ExpensesList";
 import { FaPlus, FaDownload } from "react-icons/fa";
 import { getExpenses } from "~/data/expenses.server";
+import { requireUserSession } from "~/data/auth.server";
 // import { json } from "@remix-run/node";
 
 export default function ExpensesLayout() {
@@ -43,6 +44,10 @@ export default function ExpensesLayout() {
 // return array of expenses
 export async function loader({ request }) {
 	//console.log("EXPENSES LOADER");
+
+	// redirect if no user session and stop the rest of the loader
+	await requireUserSession(request);
+
 	const expenses = await getExpenses();
 
 	// not helpful because it removes the possibility to add expense

@@ -4,6 +4,7 @@ import { getExpenses } from "~/data/expenses.server";
 import { json } from "@remix-run/node";
 import { useCatch, useLoaderData } from "@remix-run/react";
 import Error from "~/components/util/Error";
+import { requireUserSession } from "~/data/auth.server";
 
 export default function ExpensesAnalysisPage() {
 	const expenses = useLoaderData();
@@ -18,6 +19,9 @@ export default function ExpensesAnalysisPage() {
 
 // return array of expenses
 export async function loader({ request }) {
+	// redirect if no user session and stop the rest of the loader
+	await requireUserSession(request);
+
 	const expenses = await getExpenses();
 
 	if (!expenses || expenses.length === 0) {
