@@ -39,4 +39,19 @@ export default function PricingPage() {
 	);
 }
 
-export function meta() {}
+export function meta() {
+	return {
+		title: "Pricing",
+	};
+}
+
+// get headers from parent route
+export function headers({ actionHeaders, loaderHeaders, parentHeaders }) {
+	return {
+		"Cache-Control": parentHeaders.get("Cache-Control"), // 60 minutes
+	};
+}
+
+export const handle = {
+	disableJS: true, // name is up to us
+};

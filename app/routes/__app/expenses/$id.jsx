@@ -49,3 +49,15 @@ export async function action({ params, request }) {
 		return { deletedId: expenseId };
 	}
 }
+
+// add title depending on expense title
+export function meta({ params, location, data, parentsData }) {
+	// window.location, data : loaderdata
+	const expense = parentsData["routes/__app/expenses"].find(
+		(expense) => expense.id === params.id
+	);
+	return {
+		title: expense.title,
+		description: "Manage your expense",
+	};
+}

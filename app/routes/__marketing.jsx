@@ -21,3 +21,10 @@ export function loader({ request }) {
 export function links() {
 	return [{ rel: "stylesheet", href: marketingStyles }];
 }
+
+// headers in pathless route (to send it to child route)
+export function headers() {
+	return {
+		"Cache-Control": "max-age=3600", // 60 minutes of cache in production
+	};
+}

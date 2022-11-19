@@ -8,104 +8,107 @@ import { renderToPipeableStream } from "react-dom/server";
 const ABORT_DELAY = 5000;
 
 export default function handleRequest(
-  request,
-  responseStatusCode,
-  responseHeaders,
-  remixContext
+	request,
+	responseStatusCode,
+	responseHeaders,
+	remixContext
 ) {
-  return isbot(request.headers.get("user-agent"))
-    ? handleBotRequest(
-        request,
-        responseStatusCode,
-        responseHeaders,
-        remixContext
-      )
-    : handleBrowserRequest(
-        request,
-        responseStatusCode,
-        responseHeaders,
-        remixContext
-      );
+	return isbot(request.headers.get("user-agent"))
+		? handleBotRequest(
+				request,
+				responseStatusCode,
+				responseHeaders,
+				remixContext
+		  )
+		: handleBrowserRequest(
+				request,
+				responseStatusCode,
+				responseHeaders,
+				remixContext
+		  );
 }
 
 function handleBotRequest(
-  request,
-  responseStatusCode,
-  responseHeaders,
-  remixContext
+	request,
+	responseStatusCode,
+	responseHeaders,
+	remixContext
 ) {
-  return new Promise((resolve, reject) => {
-    let didError = false;
+	return new Promise((resolve, reject) => {
+		let didError = false;
 
-    const { pipe, abort } = renderToPipeableStream(
-      <RemixServer context={remixContext} url={request.url} />,
-      {
-        onAllReady() {
-          const body = new PassThrough();
+		const { pipe, abort } = renderToPipeableStream(
+			<RemixServer context={remixContext} url={request.url} />,
+			{
+				onAllReady() {
+					const body = new PassThrough();
 
-          responseHeaders.set("Content-Type", "text/html");
+					responseHeaders.set("Content-Type", "text/html");
 
-          resolve(
-            new Response(body, {
-              headers: responseHeaders,
-              status: didError ? 500 : responseStatusCode,
-            })
-          );
+					// add custom headers to all response
+					// responseHeaders.set("X-My-Header", "some value");
 
-          pipe(body);
-        },
-        onShellError(error) {
-          reject(error);
-        },
-        onError(error) {
-          didError = true;
+					resolve(
+						new Response(body, {
+							headers: responseHeaders,
+							status: didError ? 500 : responseStatusCode,
+						})
+					);
 
-          console.error(error);
-        },
-      }
-    );
+					pipe(body);
+				},
+				onShellError(error) {
+					reject(error);
+				},
+				onError(error) {
+					didError = true;
 
-    setTimeout(abort, ABORT_DELAY);
-  });
+					console.error(error);
+				},
+			}
+		);
+
+		setTimeout(abort, ABORT_DELAY);
+	});
 }
 
 function handleBrowserRequest(
-  request,
-  responseStatusCode,
-  responseHeaders,
-  remixContext
+	request,
+	responseStatusCode,
+	responseHeaders,
+	remixContext
 ) {
-  return new Promise((resolve, reject) => {
-    let didError = false;
+	return new Promise((resolve, reject) => {
+		let didError = false;
 
-    const { pipe, abort } = renderToPipeableStream(
-      <RemixServer context={remixContext} url={request.url} />,
-      {
-        onShellReady() {
-          const body = new PassThrough();
+		const { pipe, abort } = renderToPipeableStream(
+			<RemixServer context={remixContext} url={request.url} />,
+			{
+				onShellReady() {
+					const body = new PassThrough();
 
-          responseHeaders.set("Content-Type", "text/html");
+					responseHeaders.set("Content-Type", "text/html");
 
-          resolve(
-            new Response(body, {
-              headers: responseHeaders,
-              status: didError ? 500 : responseStatusCode,
-            })
-          );
+					resolve(
+						new Response(body, {
+							headers: responseHeaders,
+							status: didError ? 500 : responseStatusCode,
+						})
+					);
 
-          pipe(body);
-        },
-        onShellError(err) {
-          reject(err);
-        },
-        onError(error) {
-          didError = true;
+					pipe(body);
+				},
+				onShellError(err) {
+					reject(err);
+				},
+				onError(error) {
+					didError = true;
 
-          console.error(error);
-        },
-      }
-    );
+					console.error(error);
+				},
+			}
+		);
 
-    setTimeout(abort, ABORT_DELAY);
-  });
+		setTimeout(abort, ABORT_DELAY);
+	});
 }

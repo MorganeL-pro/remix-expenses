@@ -5,6 +5,7 @@ import ExpensesList from "~/components/expenses/ExpensesList";
 import { FaPlus, FaDownload } from "react-icons/fa";
 import { getExpenses } from "~/data/expenses.server";
 import { requireUserSession } from "~/data/auth.server";
+import { json } from "@remix-run/node";
 // import { json } from "@remix-run/node";
 
 export default function ExpensesLayout() {
@@ -58,7 +59,12 @@ export async function loader({ request }) {
 	// 		{ status: 404, statusText: "No expenses found" }
 	// 	);
 	// }
-	return expenses;
+	// return expenses;
+	return json(expenses, {
+		headers: {
+			"Cache-Control": "max-age=3",
+		},
+	});
 }
 
 // second way of doing it by sending json and useLoaderData will transform data
@@ -71,3 +77,9 @@ export async function loader({ request }) {
 // export function CatchBoundary() {
 // 	return <p>Error</p>;
 // }
+
+export function headers({ actionHeaders, loaderHeaders, parentHeaders }) {
+	return {
+		"Cache-Control": loaderHeaders.get("Cache-Control"), // 3 minutes
+	};
+}

@@ -46,4 +46,17 @@ export default function Index() {
 	);
 }
 
-export function meta() {}
+export function meta() {
+	return { title: "Remix Expenses App", description: "Manage your expenses" };
+}
+
+// custom headers
+export function headers() {
+	return {
+		"Cache-Control": "max-age=3600", // 60 minutes of cache in production
+	};
+}
+
+export const handle = {
+	disableJS: true, // name is up to us
+};
