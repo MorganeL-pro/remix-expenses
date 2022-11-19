@@ -57,6 +57,8 @@ export async function requireUserSession(request) {
 		// no catchboundary,just redirect and stop everything else
 		throw redirect("/auth?mode=login");
 	}
+
+	return userId;
 }
 
 export async function signup({ email, password }) {

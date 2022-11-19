@@ -46,9 +46,9 @@ export async function loader({ request }) {
 	//console.log("EXPENSES LOADER");
 
 	// redirect if no user session and stop the rest of the loader
-	await requireUserSession(request);
+	const userId = await requireUserSession(request);
 
-	const expenses = await getExpenses();
+	const expenses = await getExpenses(userId);
 
 	// not helpful because it removes the possibility to add expense
 	// if (!expenses || expenses.length === 0) {

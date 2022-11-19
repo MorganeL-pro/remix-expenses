@@ -20,9 +20,9 @@ export default function ExpensesAnalysisPage() {
 // return array of expenses
 export async function loader({ request }) {
 	// redirect if no user session and stop the rest of the loader
-	await requireUserSession(request);
+	const userId = await requireUserSession(request);
 
-	const expenses = await getExpenses();
+	const expenses = await getExpenses(userId);
 
 	if (!expenses || expenses.length === 0) {
 		throw json(
