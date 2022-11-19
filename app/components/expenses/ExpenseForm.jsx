@@ -20,7 +20,7 @@ function ExpenseForm() {
 	const params = useParams();
 
 	const matches = useMatches();
-	// get all the active routes from where we are (almost like get the props from a parent)
+	// get all the active routes from the parent route (almost like get the props from a parent)
 	console.log(matches);
 	const expenses = matches.find(
 		(match) => match.id === "routes/__app/expenses"
